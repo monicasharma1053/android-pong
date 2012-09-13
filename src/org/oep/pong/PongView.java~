@@ -37,7 +37,7 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
 	
 	public static final int
 		STARTING_LIVES = 1,
-		PLAYER_PADDLE_SPEED = 50;
+		PLAYER_PADDLE_SPEED = 10;
 	
 	/**
 	 * This is mostly deprecated but kept around if the need
@@ -71,7 +71,7 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
 	/** Mutes sounds when true */
 	private boolean mMuted = false;
 
-	private Paddle mRed, mBlue, mGreen;
+	private Paddle mRed, mBlue;
 	
 	/** Touch boxes for various functions. These are assigned in initialize() */
 	private Rect mPauseTouchBox;
@@ -96,7 +96,7 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
 	private static final int PADDING = 3;
 	
 	/** Scrollwheel sensitivity */
-	private static final int SCROLL_SENSITIVITY = 90;
+	private static final int SCROLL_SENSITIVITY = 80;
 
 	/** Redraws the screen according to FPS */
 	private RefreshHandler mRedrawHandler = new RefreshHandler();
@@ -165,7 +165,7 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
     	
     	mBallSpeedModifier = Math.max(0, prefs.getInt(Pong.PREF_BALL_SPEED, 0));
     	mMuted = prefs.getBoolean(Pong.PREF_MUTED, mMuted);
-    	mLivesModifier = Math.max(0, prefs.getInt(Pong.PREF_LIVES, 4));
+    	mLivesModifier = Math.max(0, prefs.getInt(Pong.PREF_LIVES, 2));
     	mCpuHandicap = Math.max(0, Math.min(PLAYER_PADDLE_SPEED-1, prefs.getInt(Pong.PREF_HANDICAP, 4)));
     	
     	String strategy = prefs.getString(Pong.PREF_STRATEGY, null);
@@ -258,7 +258,6 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
 	protected void handleBounces(float px, float py) {
 		handleTopFastBounce(mRed, px, py);
 		handleBottomFastBounce(mBlue, px, py);
-		handleMiddleBounce(mGreen, px, py);
 		
 		// Handle bouncing off of a wall
 		if(mBall.x <= Ball.RADIUS || mBall.x >= getWidth() - Ball.RADIUS) {
@@ -290,19 +289,6 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
 			mBall.bouncePaddle(paddle);
 			playSound(mPaddleSFX);
 			increaseDifficulty();
-		}
-	}
-	
-	protected void handleMiddleBounce(Paddle paddle, float px, float py)
-	{
-		if(mBall.goingDown()==false)
-		{
-			handleTopFastBounce(paddle, px, py);
-		}
-		
-		else if(mBall.goingUp()==false)
-		{
-			handleBottomFastBounce(paddle, px, py); 
 		}
 	}
 	
@@ -417,13 +403,10 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
 		cpu.move(true);
 	}
 	
- 
-	
 	/**
 	 * Knocks up the framerate a bit to keep it difficult.
 	 */
 	private void increaseDifficulty() {
-		
 		mBall.speed++;
 	}
 
@@ -464,22 +447,13 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
     private void initializePaddles() {
     	Rect redTouch = new Rect(0,0,getWidth(),getHeight() / 8);
     	Rect blueTouch = new Rect(0, 7 * getHeight() / 8, getWidth(), getHeight());
-    	Rect greenTouch = new Rect(0, 7 * getHeight() / 5, getWidth(), getHeight()); 
     	
-<<<<<<< HEAD
     	mRed = new Paddle(Color.RED, redTouch.bottom + PADDING);
     	mBlue = new Paddle(Color.BLUE, blueTouch.top - PADDING - Paddle.PADDLE_THICKNESS);
-    	mGreen = new Paddle(Color.GREEN, greenTouch.top / PADDING + 8); 
-=======
-    	mRed = new Paddle(Color.MAGENTA, redTouch.bottom + PADDING);
-    	mBlue = new Paddle(Color.CYAN, blueTouch.top - PADDING - Paddle.PADDLE_THICKNESS);
->>>>>>> 0233eef28fbdf22d7e86f3a663a4ede10e034be2
     	
-    	mGreen.setTouchbox(greenTouch); 
     	mRed.setTouchbox( redTouch );
     	mBlue.setTouchbox( blueTouch );
     	
-    	mGreen.setHandicap(mCpuHandicap); 
     	mRed.setHandicap(mCpuHandicap);
     	mBlue.setHandicap(mCpuHandicap);
     	
@@ -551,9 +525,8 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
         // Draw the paddles / touch boundaries
     	mRed.draw(canvas);
     	mBlue.draw(canvas);
-    	mGreen.draw(canvas); 
 
-    	// touchboxes if needed
+    	// Draw touchboxes if needed
     	if(gameRunning() && mRed.player && mCurrentState == State.Running)
         	mRed.drawTouchbox(canvas);
         
@@ -562,26 +535,23 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
         
         // Draw ball stuff
         mPaint.setStyle(Style.FILL);
-        mPaint.setColor(Color.YELLOW);
+        mPaint.setColor(Color.WHITE);
         
         mBall.draw(canvas);
-        
         
         // If either is a not a player, blink and let them know they can join in!
         // This blinks with the ball.
         if(mBall.serving()) {
         	String join = context.getString(R.string.join_in);
-        	mPaint.setTextSize(36);
-        	
         	int joinw = (int) mPaint.measureText(join);
         	
         	if(!mRed.player) {
-        		mPaint.setColor(Color.MAGENTA);
+        		mPaint.setColor(Color.RED);
         		canvas.drawText(join, getWidth() / 2 - joinw / 2, mRed.touchCenterY(), mPaint);
         	}
         	
         	if(!mBlue.player) {
-        		mPaint.setColor(Color.CYAN);
+        		mPaint.setColor(Color.BLUE);
         		canvas.drawText(join, getWidth() / 2 - joinw / 2, mBlue.touchCenterY(), mPaint);
         	}
         }
@@ -602,12 +572,12 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
         	String s = context.getString(R.string.paused);
         	int width = (int) mPaint.measureText(s);
         	int height = (int) (mPaint.ascent() + mPaint.descent()); 
-        	mPaint.setColor(Color.YELLOW);
+        	mPaint.setColor(Color.WHITE);
         	canvas.drawText(s, getWidth() / 2 - width / 2, getHeight() / 2 - height / 2, mPaint);
         }
         
         // Draw a 'lives' counter
-    	mPaint.setColor(Color.YELLOW);
+    	mPaint.setColor(Color.WHITE);
     	mPaint.setStyle(Style.FILL_AND_STROKE);
     	for(int i = 0; i < mRed.getLives(); i++) {
     		canvas.drawCircle(Ball.RADIUS + PADDING + i * (2 * Ball.RADIUS + PADDING),
@@ -630,13 +600,11 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
         	
         	if(!mBlue.living()) {
         		s = context.getString(R.string.red_wins);
-        		mPaint.setColor(Color.MAGENTA);
-        		mPaint.setTextSize(36);
+        		mPaint.setColor(Color.RED);
         	}
         	else if(!mRed.living()) {
         		s = context.getString(R.string.blue_wins);
-        		mPaint.setColor(Color.CYAN);
-        		mPaint.setTextSize(36);
+        		mPaint.setColor(Color.BLUE);
         	}
         	
         	int width = (int) mPaint.measureText(s);
@@ -1003,8 +971,8 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
 		}
 		
 		public static final double BOUND = Math.PI / 9;
-		public static final float SPEED = 8.0f; 
-		public static final int RADIUS = 8;
+		public static final float SPEED = 4.0f; 
+		public static final int RADIUS = 4;
 		public static final double SALT = 4 * Math.PI / 9;
 	}
 
@@ -1140,10 +1108,9 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
 		}
 		
 		/** Thickness of the paddle */
-		private static final int PADDLE_THICKNESS = 50;
+		private static final int PADDLE_THICKNESS = 10;
 		
 		/** Width of the paddle */
-		private static final int PADDLE_WIDTH = 50;
+		private static final int PADDLE_WIDTH = 40;
 	}
 }
-
