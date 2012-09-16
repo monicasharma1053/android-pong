@@ -466,15 +466,14 @@ public class PongView extends View implements OnTouchListener, OnKeyListener {
     	Rect blueTouch = new Rect(0, 7 * getHeight() / 8, getWidth(), getHeight());
     	Rect greenTouch = new Rect(0, 7 * getHeight() / 5, getWidth(), getHeight()); 
     	
-<<<<<<< HEAD
+
     	mRed = new Paddle(Color.RED, redTouch.bottom + PADDING);
     	mBlue = new Paddle(Color.BLUE, blueTouch.top - PADDING - Paddle.PADDLE_THICKNESS);
     	mGreen = new Paddle(Color.GREEN, greenTouch.top / PADDING + 8); 
-=======
+
     	mRed = new Paddle(Color.MAGENTA, redTouch.bottom + PADDING);
     	mBlue = new Paddle(Color.CYAN, blueTouch.top - PADDING - Paddle.PADDLE_THICKNESS);
->>>>>>> 0233eef28fbdf22d7e86f3a663a4ede10e034be2
-    	
+
     	mGreen.setTouchbox(greenTouch); 
     	mRed.setTouchbox( redTouch );
     	mBlue.setTouchbox( blueTouch );
